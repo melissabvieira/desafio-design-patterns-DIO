@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111116">
+  <title>notify. — Central de notificações</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="notify., início">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M21 3 10.8 13.2M21 3l-6.5 18-3.7-7.3L3 10.5 21 3Z" />
+          </svg>
+        </span>
+        <span class="brand-name">notify<span>.</span></span>
+      </a>
+      <div class="header-meta">
+        <span class="header-subtitle">Central de notificações</span>
+        <span id="connection-status" class="connection-status" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="connection-label">Conectando à API</span>
+        </span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="composer" aria-labelledby="page-title">
+        <div class="intro">
+          <p class="eyebrow"><span></span> COMUNICAÇÃO SIMPLES, EM UM SÓ LUGAR</p>
+          <h1 id="page-title">Envie sua mensagem.</h1>
+          <p class="intro-copy">Escolha um canal e prepare sua notificação. O envio é simulado pelo sistema.</p>
+        </div>
+
+        <form id="notification-form" novalidate>
+          <fieldset class="channel-fieldset">
+            <legend>Escolha o canal</legend>
+            <div class="channel-grid">
+              <button class="channel-card is-selected" type="button" data-channel="EMAIL" aria-pressed="true">
+                <span class="channel-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                    <path d="m4 7 8 6 8-6"></path>
+                  </svg>
+                </span>
+                <span class="channel-copy"><strong>E-mail</strong><small>Para sua caixa de entrada</small></span>
+                <span class="channel-check" aria-hidden="true">✓</span>
+              </button>
+              <button class="channel-card" type="button" data-channel="SMS" aria-pressed="false">
+                <span class="channel-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-2 2v-6.5A7.5 7.5 0 1 1 20 11.5Z"></path>
+                    <path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"></path>
+                  </svg>
+                </span>
+                <span class="channel-copy"><strong>SMS</strong><small>Direto para o celular</small></span>
+                <span class="channel-check" aria-hidden="true">✓</span>
+              </button>
+              <button class="channel-card" type="button" data-channel="WHATSAPP" aria-pressed="false">
+                <span class="channel-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M20.2 11.8a8.2 8.2 0 0 1-12.1 7.1L3 20l1.2-4.8a8.2 8.2 0 1 1 16-3.4Z"></path>
+                    <path d="M8.3 8.1c.2-.4.4-.4.7-.4h.4c.2 0 .3.1.4.4l.6 1.4c.1.2.1.4 0 .5l-.5.6c-.1.2-.2.3-.1.5.3.6.9 1.2 1.5 1.6.2.1.4.2.5 0l.7-.8c.2-.2.3-.2.5-.1l1.4.7c.2.1.3.2.3.4 0 .3-.2 1.1-.6 1.4-.4.4-1 .6-1.5.5-.6-.1-1.4-.4-2.3-1.1-.7-.5-1.4-1.3-1.9-2.1-.5-.8-.7-1.5-.7-2.1 0-.6.3-1.1.6-1.4Z"></path>
+                  </svg>
+                </span>
+                <span class="channel-copy"><strong>WhatsApp</strong><small>Uma conversa mais próxima</small></span>
+                <span class="channel-check" aria-hidden="true">✓</span>
+              </button>
+            </div>
+          </fieldset>
+
+          <div class="form-fields">
+            <label class="field-label" for="recipient">Destinatário</label>
+            <input id="recipient" name="recipient" type="email" placeholder="nome@exemplo.com"
+                   autocomplete="email" maxlength="254" required>
+
+            <div class="message-label-row">
+              <label class="field-label" for="message">Mensagem</label>
+              <span id="character-count" class="character-count">0 / 1000</span>
+            </div>
+            <textarea id="message" name="message" placeholder="Escreva sua mensagem aqui..."
+                      maxlength="1000" rows="5" required></textarea>
+            <p class="form-hint">Seja claro e objetivo. A mensagem não será enviada de verdade.</p>
+
+            <button id="submit-button" class="submit-button" type="submit">
+              <span class="button-text">Enviar notificação</span>
+              <svg class="button-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <section id="result" class="result" aria-live="polite" aria-atomic="true" hidden>
+          <span id="result-icon" class="result-icon" aria-hidden="true"></span>
+          <div class="result-content">
+            <div class="result-heading">
+              <strong id="result-title"></strong>
+              <span id="result-status" class="result-status"></span>
+            </div>
+            <p id="result-message"></p>
+            <dl class="result-details">
+              <div><dt>Canal</dt><dd id="result-channel"></dd></div>
+              <div><dt>Destinatário</dt><dd id="result-recipient"></dd></div>
+            </dl>
+          </div>
+        </section>
+      </section>
+      <footer class="page-footer"><span class="footer-line"></span> Feito para manter as conversas em movimento.</footer>
+    </main>
+  </div>
+</body>
+</html>

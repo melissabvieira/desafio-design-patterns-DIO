@@ -1,39 +1,42 @@
 # Sistema de Notificações
 
-Projeto acadêmico em Java puro que simula o envio de notificações por e-mail, SMS ou WhatsApp usando um menu interativo no terminal.
+Projeto acadêmico em Java puro que disponibiliza uma interface web para simular notificações por e-mail, SMS ou WhatsApp. A aplicação usa o servidor HTTP nativo do Java e não exige frameworks, banco de dados, Node.js ou bibliotecas externas.
 
-## Objetivo
+## Objetivo acadêmico
 
-Demonstrar o padrão de projeto **Strategy (Estratégia)**: a aplicação escolhe um comportamento de envio em tempo de execução sem acoplar o serviço de notificação a um canal específico.
+Demonstrar o padrão de projeto **Strategy (Estratégia)** em uma aplicação integrada: o canal é selecionado durante a requisição, e o serviço delega o envio à estratégia correspondente sem conhecer os detalhes do canal.
 
 ## Tecnologias
 
-- Java 17 ou superior
-- `Scanner` para leitura das opções e dos dados no terminal
-- Nenhum framework, banco de dados, serviço externo ou biblioteca adicional
+- Java 17 ou superior, incluindo `com.sun.net.httpserver.HttpServer`
+- HTML5, CSS3 e JavaScript puro com Fetch API
+- Sem banco de dados, frameworks ou dependências externas
 
-## Aplicação do padrão Strategy
+## Padrão Strategy
 
-`Notificacao` define o contrato comum `enviar(destinatario, mensagem)`. `EmailNotificacao`, `SmsNotificacao` e `WhatsAppNotificacao` implementam esse contrato e apresentam a confirmação do canal escolhido.
+`Notificacao` define o contrato `enviar(destinatario, mensagem)`. `EmailNotificacao`, `SmsNotificacao` e `WhatsAppNotificacao` implementam esse contrato. O endpoint seleciona uma dessas estratégias e injeta a implementação em `ServicoNotificacao`, que delega o envio. Assim, a camada HTTP não duplica a lógica de envio, e o serviço permanece desacoplado dos canais.
 
-`ServicoNotificacao` recebe uma implementação de `Notificacao` pelo construtor e delega a ela o envio. A classe `Main` escolhe a estratégia conforme a opção do menu. Assim, o serviço não precisa conhecer os detalhes de cada canal e novas estratégias podem ser adicionadas sem alterar sua lógica.
-
-## Estrutura dos arquivos
+## Estrutura
 
 ```text
 .
-├── Notificacao.java
 ├── EmailNotificacao.java
+├── Main.java
+├── Notificacao.java
+├── ServicoNotificacao.java
+├── ServidorNotificacoes.java
 ├── SmsNotificacao.java
 ├── WhatsAppNotificacao.java
-├── ServicoNotificacao.java
-├── Main.java
+├── web/
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
 └── README.md
 ```
 
 ## Compilar e executar
 
-Abra o terminal na raiz do projeto e execute:
+Requisitos: JDK 17 ou superior instalado. Abra PowerShell ou o terminal integrado do VS Code na raiz do projeto e execute:
 
 ```powershell
 New-Item -ItemType Directory -Force out
@@ -41,15 +44,45 @@ javac -encoding UTF-8 -d out *.java
 java -cp out Main
 ```
 
-O projeto pode também ser aberto no VS Code com suporte a Java 17 ou superior instalado.
+Quando o terminal indicar que o servidor iniciou, acesse <http://localhost:8080>. O processo permanece ativo enquanto o servidor estiver em execução; use `Ctrl+C` para encerrá-lo. A porta padrão é `8080` e o servidor atende apenas conexões locais.
 
-## Exemplo de uso
+O menu de terminal original também pode ser executado com `java -cp out Main --cli`.
 
-1. Execute o programa e escolha `1`, `2` ou `3`.
-2. Informe o destinatário e o conteúdo da mensagem.
-3. Confira a confirmação exibida com o canal usado, o destinatário e a mensagem.
-4. O programa retorna ao menu; escolha `4` para sair.
+## Endpoints
 
-Opções inexistentes são informadas sem encerrar o programa, e campos vazios são solicitados novamente.
+### `GET /api/health`
 
-> Os envios são apenas simulados. Nenhuma mensagem é transmitida por e-mail, SMS ou WhatsApp.
+Verifica se o servidor está disponível. Retorna `200` e, por exemplo:
+
+```json
+{"sucesso":true,"status":"ok"}
+```
+
+### `POST /api/notificacoes`
+
+Aceita `canal` (`EMAIL`, `SMS` ou `WHATSAPP`), `destinatario` e `mensagem` em JSON. Campos obrigatórios não podem estar vazios e a mensagem aceita até 1.000 caracteres.
+
+Exemplo no PowerShell:
+
+```powershell
+$body = @{
+  canal = "EMAIL"
+  destinatario = "cliente@exemplo.com"
+  mensagem = "Seu chamado foi atualizado."
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Post `
+  -Uri http://localhost:8080/api/notificacoes `
+  -ContentType "application/json; charset=UTF-8" `
+  -Body $body
+```
+
+Sucesso retorna `200`:
+
+```json
+{"sucesso":true,"canal":"EMAIL","destinatario":"cliente@exemplo.com","mensagem":"Notificacao enviada com sucesso."}
+```
+
+JSON malformado, campos vazios ou canal não suportado retornam `400`; métodos não permitidos retornam `405`; falhas internas retornam `500`. A API e os arquivos da interface são servidos na mesma origem.
+
+> Todos os envios são simulados. Nenhum e-mail, SMS ou WhatsApp real é transmitido.

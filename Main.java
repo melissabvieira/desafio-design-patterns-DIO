@@ -2,6 +2,20 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        if (args.length > 0 && "--cli".equals(args[0])) {
+            executarMenu();
+            return;
+        }
+
+        try {
+            ServidorNotificacoes.iniciar();
+        } catch (Exception e) {
+            System.err.println("Nao foi possivel iniciar o servidor de notificacoes: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void executarMenu() {
         try (Scanner scanner = new Scanner(System.in)) {
             boolean executando = true;
 
